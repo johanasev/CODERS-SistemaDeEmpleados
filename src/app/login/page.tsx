@@ -1,42 +1,113 @@
 // src/app/login/page.tsx
-'use client'; // Necesario para hooks de React como useState y useRouter
+'use client'; 
 
+import { useState } from 'react';
 import Image from 'next/image';
-import backgroundImage from '../../../public/bg.png'; // Ajusta la ruta a tu imagen de fondo
-import { useRouter } from 'next/navigation'; // Para el botón de Cancelar
+import { useRouter } from 'next/navigation';
+import { useAuth, User } from '../../context/AuthContext'; 
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
-    e.preventDefault(); // Previene el comportamiento por defecto del formulario
-    // Aquí irá la lógica para enviar el formulario (a la API de autenticación)
-    console.log('Intento de inicio de sesión');
-    // Por ahora, solo redirigimos a la página principal después de un "intento"
-    // router.push('/dashboard'); // Descomentar y cambiar a la ruta del dashboard una vez exista
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [loginMessage, setLoginMessage] = useState<string | null>(null);
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setEmailError(null);
+    setPasswordError(null);
+    setLoginMessage(null);
+
+    let isValid = true;
+    if (!email.trim()) {
+      setEmailError('El correo electrónico es requerido.');
+      isValid = false;
+    } else if (!validateEmail(email)) {
+      setEmailError('Formato de correo electrónico inválido.');
+      isValid = false;
+    }
+
+    if (!password.trim()) {
+      setPasswordError('La contraseña es requerida.');
+      isValid = false;
+    } else if (password.length < 6) {
+      setPasswordError('La contraseña debe tener al menos 6 caracteres.');
+      isValid = false;
+    }
+
+    if (!isValid) {
+      return;
+    }
+
+    setIsLoading(true);
+    setLoginMessage('Iniciando sesión...');
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000)); 
+
+      // --- MODIFICACIÓN AQUÍ para asignar fotos de perfil por rol ---
+      let userProfilePic;
+      if (email === 'admin@coders.com') {
+        userProfilePic = '/admin-profile.jpg'; // Ruta de la foto para el administrador
+      } else {
+        userProfilePic = '/user-profile.jpg'; // Ruta de la foto para el usuario normal
+      }
+      // --- FIN DE LA MODIFICACIÓN ---
+
+      const simulatedUserData: User = {
+        name: 'Usuario Prueba', 
+        email: email,
+        role: email === 'admin@coders.com' ? 'ADMIN' : 'USER', 
+        position: email === 'admin@coders.com' ? 'Gerente' : 'Empleado',
+        profilePic: userProfilePic, // <-- Asigna la foto de perfil según el rol
+      };
+
+      login(simulatedUserData); 
+
+      setLoginMessage('¡Inicio de sesión exitoso! Redirigiendo...');
+      setEmail('');
+      setPassword('');
+
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 1500);
+
+    } catch (error: any) {
+      setLoginMessage(`Error al iniciar sesión: ${error.message || 'Credenciales inválidas.'}`);
+      console.error('Error de login:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancelClick = () => {
-    router.push('/'); // Redirige de vuelta a la página de landing
+    router.push('/'); 
   };
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center">
-      {/* Imagen de fondo usando next/image (la misma que en el landing) */}
       <Image
-        src={backgroundImage}
+        src="/bg.png" 
         alt="Background for login page"
         quality={100}
-        fill
-        style={{ objectFit: 'cover', zIndex: -1 }}
+        fill 
+        style={{ objectFit: 'cover', zIndex: -1 }} 
       />
-
-      {/* Overlay para el blur y la opacidad (más blur que en el landing) */}
-      {/* Ajusta la opacidad y el blur según el diseño de Figma */}
       <div className="absolute inset-0 bg-white opacity-40 backdrop-filter backdrop-blur-lg z-0"></div>
-      {/* ^^^^^^^^^^^^^^^^^^^^^^^^^^  Más opacidad y blur */}
 
-      {/* Contenido principal: Título, Subtítulo y Formulario de Login */}
       <div className="relative z-10 flex flex-col items-center p-8 bg-white bg-opacity-90 rounded-lg shadow-xl max-w-md w-full">
         <h1 className="text-5xl font-bold text-yellow-500 mb-2 tracking-widest">
           CODERS
@@ -45,7 +116,6 @@ export default function LoginPage() {
           Sistema de Gestión de Empleados
         </p>
 
-        {/* Formulario de Login */}
         <form onSubmit={handleLoginSubmit} className="w-full space-y-4">
           <div>
             <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">
@@ -54,10 +124,18 @@ export default function LoginPage() {
             <input
               type="email"
               id="email"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailError(null); 
+              }}
+              className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
+                emailError ? 'border-red-500' : ''
+              }`}
               placeholder="Tu correo electrónico"
               required
             />
+            {emailError && <p className="text-red-500 text-xs italic mt-1">{emailError}</p>}
           </div>
           <div>
             <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
@@ -66,27 +144,45 @@ export default function LoginPage() {
             <input
               type="password"
               id="password"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setPasswordError(null); 
+              }}
+              className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline ${
+                passwordError ? 'border-red-500' : ''
+              }`}
               placeholder="Tu contraseña"
               required
             />
+            {passwordError && <p className="text-red-500 text-xs italic mt-1">{passwordError}</p>}
           </div>
+
+          {loginMessage && (
+            <p className={`text-center text-sm ${
+              loginMessage.includes('exitoso') ? 'text-green-500' : 'text-red-500'
+            }`}>
+              {loginMessage}
+            </p>
+          )}
+
           <button
             type="submit"
-            className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg w-full transition duration-300 ease-in-out transform hover:scale-105"
+            disabled={isLoading}
+            className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg w-full transition duration-300 ease-in-out transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Iniciar Sesión
+            {isLoading ? 'Cargando...' : 'Iniciar Sesión'}
           </button>
         </form>
         <button
           onClick={handleCancelClick}
-          className="mt-4 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg w-full transition duration-300 ease-in-out transform hover:scale-105"
+          disabled={isLoading}
+          className="mt-4 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg w-full transition duration-300 ease-in-out transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Cancelar
         </button>
       </div>
 
-      {/* Footer (superpuesto al overlay) */}
       <footer className="absolute bottom-4 z-10 text-gray-800 text-sm">
         © Created By.CODERS - 2025
       </footer>
