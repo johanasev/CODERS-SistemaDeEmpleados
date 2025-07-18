@@ -58,21 +58,28 @@ export default function LoginPage() {
     try {
       await new Promise(resolve => setTimeout(resolve, 2000)); 
 
-      // --- MODIFICACIÓN AQUÍ para asignar fotos de perfil por rol ---
       let userProfilePic;
-      if (email === 'admin@coders.com') {
-        userProfilePic = '/admin-profile.jpg'; // Ruta de la foto para el administrador
+      let userId: string; // Declara una variable para el ID
+
+      if (email === 'admin@coders.com' && password === 'admin123') { // Asumiendo credenciales de admin
+        userProfilePic = '/admin-profile.jpg';
+        userId = 'admin001'; // Asigna un ID para el admin
+      } else if (email === 'user@coders.com' && password === 'user123') { // Asumiendo credenciales de usuario
+        userProfilePic = '/user-profile.jpg';
+        userId = 'user001'; // Asigna un ID para el usuario
       } else {
-        userProfilePic = '/user-profile.jpg'; // Ruta de la foto para el usuario normal
+        // Para cualquier otra combinación de email/password, puedes asignar un ID genérico
+        // o lanzar un error si las credenciales no coinciden con ningún usuario conocido
+        throw new Error('Credenciales inválidas.');
       }
-      // --- FIN DE LA MODIFICACIÓN ---
 
       const simulatedUserData: User = {
-        name: 'Usuario Prueba', 
+        id: userId, // <<< ¡AÑADIDA LA PROPIEDAD 'ID' AQUÍ!
+        name: email === 'admin@coders.com' ? 'Admin Maestro' : 'Usuario Prueba', // Nombre dinámico
         email: email,
-        role: email === 'admin@coders.com' ? 'ADMIN' : 'USER', 
+        role: email === 'admin@coders.com' ? 'ADMIN' : 'USER',
         position: email === 'admin@coders.com' ? 'Gerente' : 'Empleado',
-        profilePic: userProfilePic, // <-- Asigna la foto de perfil según el rol
+        profilePic: userProfilePic,
       };
 
       login(simulatedUserData); 
@@ -82,7 +89,7 @@ export default function LoginPage() {
       setPassword('');
 
       setTimeout(() => {
-        router.push('/dashboard');
+        router.push('/dashboard'); // Puedes cambiar esto a '/transactions' o '/masters'
       }, 1500);
 
     } catch (error: any) {

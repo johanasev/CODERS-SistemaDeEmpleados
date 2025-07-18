@@ -1,67 +1,46 @@
 // src/context/AuthContext.tsx
-'use client'; // Necesario para useContext y useState
-
+'use client';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-// Definir el tipo para el usuario (puedes expandirlo con más propiedades si lo necesitas)
-interface User {
+// Asegúrate de que 'User' esté EXPORTADA
+export interface User {
+  id: string; // <-- ¡Asegúrate de que esta línea esté presente!
   name: string;
   email: string;
-  role: 'ADMIN' | 'USER'; // Roles específicos
-  position?: string; // Opcional
-  profilePic?: string; // Opcional
+  role: 'ADMIN' | 'USER';
+  position: string;
+  profilePic?: string; // Opcional, si lo usas
 }
 
-// Definir el tipo para el contexto (lo que proveerá)
+// ... (el resto de tu AuthContext.tsx)
+
 interface AuthContextType {
   user: User | null;
   login: (userData: User) => void;
   logout: () => void;
 }
 
-// Crear el contexto con valores por defecto
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Hook personalizado para usar el contexto de autenticación
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
-
-// Componente Proveedor del Contexto
-export function AuthProvider({ children }: { children: ReactNode }) {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  // Opcional: Cargar usuario desde localStorage al iniciar la aplicación
+  // Intentar cargar el usuario desde localStorage al inicio
   useEffect(() => {
-    if (typeof window !== 'undefined') { // Asegurarse de que estamos en el lado del cliente
-      const storedUser = localStorage.getItem('currentUser');
-      if (storedUser) {
-        try {
-          setUser(JSON.parse(storedUser));
-        } catch (e) {
-          console.error("Failed to parse user from localStorage", e);
-          localStorage.removeItem('currentUser'); // Limpiar si está corrupto
-        }
-      }
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
     }
   }, []);
 
   const login = (userData: User) => {
     setUser(userData);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('currentUser', JSON.stringify(userData)); // Guardar en localStorage
-    }
+    localStorage.setItem('user', JSON.stringify(userData)); // Guardar en localStorage
   };
 
   const logout = () => {
     setUser(null);
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('currentUser'); // Eliminar de localStorage
-    }
+    localStorage.removeItem('user'); // Limpiar de localStorage
   };
 
   return (
@@ -69,4 +48,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
-}
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};

@@ -26,7 +26,7 @@ export default function RootLayout({
         </AuthProvider>
       </body>
     </html>
-  );
+  )
 }
 
 // Ya no necesitas la función AppContent aquí, la hemos movido a un archivo separado
