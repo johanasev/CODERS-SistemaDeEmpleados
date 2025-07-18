@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Usuario {
+  id        String     @id @default(uuid())
+  created_at DateTime  @default(now())
+  nombre    String?
+  correo    String    @unique
+  rol       BigInt
+
+  empleados_creados   Empleado[] @relation("EmpleadoCreadoPor")
+  incapacidades_registradas Incapacidad[] @relation("IncapacidadRegistradoPor")
+  pagos_registrados   Pago[] @relation("PagoRegistradoPor")
+  contratos_registrados Contrato[] @relation("ContratoRegistradoPor")
+}
+
+model Empleado {
+  id                 String     @id @default(uuid())
+  created_at         DateTime  @default(now())
+  nombre             String?
+  correo             String?
+  cargo              String?
+  salario            BigInt?
+  fecha_ingreso      DateTime?
+  horas_trabajadas   BigInt?
+  evaluacion_desempeno String?
+  creado_por         String?   
+
+  creador            Usuario?   @relation("EmpleadoCreadoPor", fields: [creado_por], references: [id])
+  incapacidades      Incapacidad[]
+  pagos              Pago[]
+  contratos          Contrato[]
+}
+
+model Incapacidad {
+  id               String    @id @default(uuid())
+  created_at       DateTime @default(now())
+  empleado_id      String
+  tipo             String
+  motivo           String
+  fecha_inicio     DateTime
+  fecha_fin        DateTime
+  dias_incapacidad Float
+  registrado_por   String
+
+  empleado         Empleado @relation(fields: [empleado_id], references: [id])
+  registrador      Usuario  @relation("IncapacidadRegistradoPor", fields: [registrado_por], references: [id])
+}
+
+model Pago {
+  id               String    @id @default(uuid())
+  created_at       DateTime @default(now())
+  empleado_id      String?
+  mes              Int?
+  anio             BigInt?
+  fecha_pago       DateTime?
+  monto_pagado     Float?
+  metodo_pago      String?
+  observaciones    String?
+  registrado_por_id String?
+
+  empleado         Empleado? @relation(fields: [empleado_id], references: [id])
+  registrador      Usuario?  @relation("PagoRegistradoPor", fields: [registrado_por_id], references: [id])
+}
+
+model Contrato {
+  id               String    @id @default(uuid())
+  created_at       DateTime @default(now())
+  empleado_id      String
+  tipo             String
+  fecha_inicio     DateTime
+  fecha_fin        DateTime?
+  salario          Float?
+  estado           String?
+  observaciones    String?
+  registrado_por   String
+
+  empleado         Empleado @relation(fields: [empleado_id], references: [id])
+  registrador      Usuario  @relation("ContratoRegistradoPor", fields: [registrado_por], references: [id])
+}
