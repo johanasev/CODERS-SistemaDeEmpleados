@@ -1,23 +1,25 @@
 // src/app/page.tsx
-'use client'; 
+'use client'; // Esta línea es necesaria para usar useRouter
 
 import Image from 'next/image';
-import backgroundImage from '../public/bg.png'; // Ajusta la ruta a tu imagen de fondo
-import { useRouter } from 'next/navigation'; // Importa useRouter
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
-
-  const router = useRouter(); // Inicializa el hook useRouter
+  const router = useRouter();
 
   const handleLoginClick = () => {
-    router.push('/login'); // Redirige a la ruta /login
+    router.push('/login'); // Redirige a la página de login
   };
 
   return (
-    <div
-      className="relative min-h-screen flex flex-col items-center justify-center bg-cover bg-center"
-      style={{ backgroundImage: "url('/bg.png')" }}
-    >
+    <div className="relative min-h-screen flex flex-col items-center justify-center">
+      <Image
+        src="/bg.png" 
+        alt="Landing Page Background"
+        quality={100}
+        fill
+        style={{ objectFit: 'cover', zIndex: -1 }} // Propiedades para la imagen de fondo
+      />
       {/* Overlay para el blur y la opacidad */}
       <div className="absolute inset-0 bg-opacity-10 backdrop-filter backdrop-blur-sm"></div>
 
@@ -36,7 +38,7 @@ export default function Home() {
         </button>
       </div>
 
-      {/* Footer (superpuesto al overlay, pero en la parte inferior) */}
+      {/* Footer */}
       <footer className="absolute bottom-4 z-10 text-gray-800 text-sm">
         © Created By.CODERS - 2025
       </footer>
