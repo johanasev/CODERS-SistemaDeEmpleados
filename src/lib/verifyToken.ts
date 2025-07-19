@@ -7,6 +7,8 @@ export function verifyToken(token: string) {
   try {
     return jwt.verify(token, JWT_SECRET)
   } catch (err) {
-    return null
-  }
+  console.error("Error al verificar el token:", err);
+  return null;
+}
+
 }

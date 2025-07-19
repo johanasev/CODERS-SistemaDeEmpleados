@@ -19,7 +19,7 @@ export default function UsersPage() {
   const [selectedRole, setSelectedRole] = useState<'ADMIN' | 'USER'>('USER');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
-  const { user: currentUser, token } = useAuth();
+  const { user: currentUser } = useAuth();
   const router = useRouter();
 
   // Redirige si no es ADMIN

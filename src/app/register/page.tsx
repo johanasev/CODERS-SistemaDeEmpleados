@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function RegistroPage() {
   const router = useRouter();
 
-  const [nombre, setNombre] = useState('');
-  const [correo, setCorreo] = useState('');
-  const [contrasena, setContrasena] = useState('');
+  const [nombre, setNombre] = useState("");
+  const [correo, setCorreo] = useState("");
+  const [contrasena, setContrasena] = useState("");
 
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -21,36 +21,40 @@ export default function RegistroPage() {
     setLoading(true);
 
     if (!nombre || !correo || !contrasena) {
-      setError('Todos los campos son obligatorios.');
+      setError("Todos los campos son obligatorios.");
       setLoading(false);
       return;
     }
 
     try {
-      const res = await fetch('/api/usuarios', {
-        method: 'POST',
+      const res = await fetch("/api/usuarios", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ nombre, correo, contrasena, rol: 'USER' }), // Rol fijo
+        body: JSON.stringify({ nombre, correo, contrasena, rol: "USER" }), // Rol fijo
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Error al registrar el usuario.');
+        throw new Error(data.error || "Error al registrar el usuario.");
       }
 
-      setSuccess('Usuario registrado exitosamente.');
-      setNombre('');
-      setCorreo('');
-      setContrasena('');
+      setSuccess("Usuario registrado exitosamente.");
+      setNombre("");
+      setCorreo("");
+      setContrasena("");
 
       setTimeout(() => {
-        router.push('/login');
+        router.push("/login");
       }, 2000);
-    } catch (err: any) {
-      setError(err.message || 'Error al registrar el usuario.');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Error al registrar el usuario.");
+      }
     } finally {
       setLoading(false);
     }
@@ -62,7 +66,9 @@ export default function RegistroPage() {
         onSubmit={handleSubmit}
         className="bg-white p-6 rounded-lg shadow-md w-full max-w-md space-y-4"
       >
-        <h2 className="text-2xl font-bold text-center text-yellow-600 mb-4">Registro de Usuario</h2>
+        <h2 className="text-2xl font-bold text-center text-yellow-600 mb-4">
+          Registro de Usuario
+        </h2>
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
         {success && <p className="text-green-500 text-sm">{success}</p>}
@@ -90,7 +96,9 @@ export default function RegistroPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-black">Contraseña</label>
+          <label className="block text-sm font-medium text-black">
+            Contraseña
+          </label>
           <input
             type="password"
             value={contrasena}
@@ -105,11 +113,11 @@ export default function RegistroPage() {
           disabled={loading}
           className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-md transition disabled:opacity-50"
         >
-          {loading ? 'Registrando...' : 'Registrarse'}
+          {loading ? "Registrando..." : "Registrarse"}
         </button>
 
         <p className="text-sm text-center mt-2">
-          ¿Ya tienes una cuenta?{' '}
+          ¿Ya tienes una cuenta?{" "}
           <a href="/login" className="text-yellow-600 hover:underline">
             Inicia sesión
           </a>

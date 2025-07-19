@@ -8,7 +8,7 @@ interface MyTokenPayload extends JwtPayload {
   id: string;
   rol: string;
 }
-function serializeBigInt(obj: any): any {
+function serializeBigInt<T>(obj: T): T {
   return JSON.parse(
     JSON.stringify(obj, (_key, value) =>
       typeof value === 'bigint' ? value.toString() : value

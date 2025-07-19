@@ -18,6 +18,16 @@ interface Maestro {
   };
 }
 
+interface MaestroFormData {
+  nombre: string;
+  correo: string;
+  cargo: string;
+  fecha_ingreso: string;
+  evaluacion_desempeno: string;
+  salario: number;
+  horas_trabajadas: number;
+}
+
 export default function MastersPage() {
   const [maestros, setMaestros] = useState<Maestro[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,6 +40,7 @@ export default function MastersPage() {
     horas_trabajadas: 0,
     evaluacion_desempeno: "",
   });
+
   const [saveStatus, setSaveStatus] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
@@ -187,13 +198,13 @@ export default function MastersPage() {
               Agregar Nuevo Empleado
             </h3>
 
-            {[
+            {([
               "nombre",
               "correo",
               "cargo",
               "fecha_ingreso",
               "evaluacion_desempeno",
-            ].map((field) => (
+            ] as (keyof MaestroFormData)[]).map((field) => (
               <div className="mb-4" key={field}>
                 <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">
                   {field.replace("_", " ")}
@@ -201,28 +212,29 @@ export default function MastersPage() {
                 <input
                   type={field === "fecha_ingreso" ? "date" : "text"}
                   name={field}
-                  value={(form as any)[field]}
+                  value={form[field]}
                   onChange={handleInputChange}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-800"
                 />
               </div>
             ))}
 
-            {["salario", "horas_trabajadas"].map((field) => (
-              <div className="mb-4" key={field}>
-                <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">
-                  {field.replace("_", " ")}
-                </label>
-                <input
-                  type="number"
-                  name={field}
-                  value={(form as any)[field]}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-800"
-                />
-              </div>
-            ))}
-
+            {(["salario", "horas_trabajadas"] as (keyof MaestroFormData)[]).map(
+              (field) => (
+                <div className="mb-4" key={field}>
+                  <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">
+                    {field.replace("_", " ")}
+                  </label>
+                  <input
+                    type="number"
+                    name={field}
+                    value={form[field]}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-800"
+                  />
+                </div>
+              )
+            )}
             <div className="flex justify-end space-x-3">
               <button
                 onClick={() => {

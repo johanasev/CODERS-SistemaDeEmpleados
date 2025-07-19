@@ -5,7 +5,12 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth, User } from "../../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
-
+interface DecodedToken {
+  id: string;
+  correo: string;
+  rol: string;
+  // Agrega más propiedades si tu token incluye otras
+}
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
@@ -66,13 +71,13 @@ export default function LoginPage() {
       localStorage.setItem("token", token);
 
       // Decodificar el token para obtener info del usuario
-      const decoded: any = jwtDecode(token);
+      const decoded: DecodedToken = jwtDecode<DecodedToken>(token);
 
       const simulatedUserData: User = {
         id: decoded.id,
         name: decoded.correo.split("@")[0],
         email: decoded.correo,
-        role: decoded.rol || "USER",
+        role:  "USER",
         position: decoded.rol === "ADMIN" ? "Gerente" : "Empleado",
         profilePic: decoded.rol === "ADMIN"
           ? "/admin-profile.jpg"

@@ -1,30 +1,34 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(
-  _req: Request,
-  context: { params: { id: string } }
+  _req: NextRequest,
+  context: any // ← sí, aquí usamos `any` para evitar el error de tipos conflictivos de Next.js
 ) {
-  // ✅ Si estás viendo el error "params.id should be awaited", usa esta línea:
-  const { id } = context.params; // 👈 Esto es lo que elimina el error
+  const { id } = context.params;
 
   try {
     const pagos = await prisma.pago.findMany({
-      where: { empleado_id: id }, // <- o `id` si es único
+      where: { empleado_id: id },
       include: {
         empleado: true,
         registrador: true,
       },
     });
-function replacerBigInt(_key: string, value: any) {
-  return typeof value === 'bigint' ? value.toString() : value;
-}
-   return new Response(JSON.stringify(pagos, replacerBigInt), {
-  status: 200,
-  headers: { 'Content-Type': 'application/json' },
-});
+
+    const json = JSON.stringify(pagos, (_, value) =>
+      typeof value === 'bigint' ? value.toString() : value
+    );
+
+    return new Response(json, {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: 'Error al obtener los pagos' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Error al obtener los pagos' },
+      { status: 500 }
+    );
   }
 }
