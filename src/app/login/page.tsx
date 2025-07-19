@@ -92,8 +92,12 @@ export default function LoginPage() {
         router.push('/dashboard'); // Puedes cambiar esto a '/transactions' o '/masters'
       }, 1500);
 
-    } catch (error: any) {
-      setLoginMessage(`Error al iniciar sesión: ${error.message || 'Credenciales inválidas.'}`);
+    } catch (error: unknown) {
+      let errorMessage = 'Un error inesperado ocurrió.';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      setLoginMessage(`Error al iniciar sesión: ${errorMessage || 'Credenciales inválidas.'}`);
       console.error('Error de login:', error);
     } finally {
       setIsLoading(false);
