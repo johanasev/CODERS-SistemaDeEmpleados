@@ -13,7 +13,8 @@ model Usuario {
   created_at DateTime  @default(now())
   nombre    String?
   correo    String    @unique
-  rol       BigInt
+  contrasena String 
+  rol       String
 
   empleados_creados   Empleado[] @relation("EmpleadoCreadoPor")
   incapacidades_registradas Incapacidad[] @relation("IncapacidadRegistradoPor")
@@ -63,6 +64,7 @@ model Pago {
   fecha_pago       DateTime?
   monto_pagado     Float?
   metodo_pago      String?
+  horas_pagadas  BigInt?
   observaciones    String?
   registrado_por_id String?
 

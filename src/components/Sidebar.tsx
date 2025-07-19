@@ -18,8 +18,8 @@ export default function Sidebar() {
   }
 
   const navigationLinks = [
-    { name: 'Transacciones', href: '/transactions', roles: ['ADMIN', 'USER'] },
-    { name: 'Maestros', href: '/masters', roles: ['ADMIN', 'USER'] },
+    { name: 'Pagos', href: '/transactions', roles: ['ADMIN', 'USER'] },
+    { name: 'Empleados', href: '/masters', roles: ['ADMIN', 'USER'] },
     { name: 'Usuarios', href: '/users', roles: ['ADMIN'] },
   ];
 
