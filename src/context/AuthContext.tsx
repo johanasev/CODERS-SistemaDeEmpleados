@@ -9,7 +9,8 @@ export interface User {
   email: string;
   role: 'ADMIN' | 'USER';
   position: string;
-  profilePic?: string; // Opcional, si lo usas
+  profilePic?: string;
+  idCreationDate?: string; // Opcional, si lo usas
 }
 
 // ... (el resto de tu AuthContext.tsx)
