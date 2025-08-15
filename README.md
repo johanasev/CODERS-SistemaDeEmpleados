@@ -92,5 +92,5 @@ Este proyecto fue desarrollado por:
 
 * **Johana Sevillano**
 * **Juan Esteban Aristizabal**
-* **Nelson Puerta**
+
 
